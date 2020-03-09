@@ -17,7 +17,6 @@ resource "azurerm_virtual_network" "main" {
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
-  depends_on = [azurerm_resource_group.main]
 }
 
 resource "azurerm_subnet" "internal" {
@@ -25,6 +24,18 @@ resource "azurerm_subnet" "internal" {
   resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefix       = "10.0.2.0/24"
+}
+
+resource "azurerm_network_interface" "main" {
+  name                = "${var.prefix}-nic-${count.index + 1}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  ip_configuration {
+    name                          = "testconfiguration1"
+    subnet_id                     = azurerm_subnet.internal.id
+    private_ip_address_allocation = "Dynamic"
+  }
 }
 
 output "vnet_name" {
@@ -35,14 +46,14 @@ output "subnet_name" {
   value = "${azurerm_subnet.internal.*.name}"
 }
 
-# output "virtual_machine_name" {
-#   value = "${azurerm_virtual_machine.main.*.name}"
-# }
+output "virtual_machine_name" {
+  value = "${azurerm_virtual_machine.main.*.name}"
+}
 
-# output "virtual_machine_interface" {
-#   value = "${azurerm_network_interface.main.*.name}"
-# }
+output "virtual_machine_interface" {
+  value = "${azurerm_network_interface.main.*.name}"
+}
 
-# output "virtul_machine_location" {
-#   value = "${azurerm_virtual_machine.main.*.location}"
-# }
+output "virtul_machine_location" {
+  value = "${azurerm_virtual_machine.main.*.location}"
+}
